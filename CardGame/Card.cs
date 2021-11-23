@@ -16,5 +16,18 @@ namespace CardGame
         {
             return $"{RankInfo.Name(Rank)}{SuitInfo.Icon(Suit)}";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not Card card)
+                return false;
+
+            return card.ToString() == ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
     }
 }
