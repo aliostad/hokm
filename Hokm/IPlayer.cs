@@ -6,7 +6,7 @@ namespace Hokm
 {
     public interface IPlayer
     {
-        Guid Id { get; set; }
+        Guid Id { get; }
 
         string Name { get; }
 
@@ -15,5 +15,9 @@ namespace Hokm
         Suit CallTrumpSuit();
 
         Card Play(IEnumerable<Card> playedByOthers);
+
+        string Banter();
+
+        void NewGame();
     }
 }

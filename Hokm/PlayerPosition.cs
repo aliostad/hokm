@@ -1,6 +1,6 @@
 namespace Hokm
 {
-    public enum TrumpCaller
+    public enum PlayerPosition
     {
         Team1Player1,
         Team2Player1,
