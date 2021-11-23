@@ -87,18 +87,23 @@ namespace Hokm
 
         public static int DecideWinnerCard(IEnumerable<Card> cards, Suit trumpSuit)
         {
-            var (cardValue, index) = cards.Select(
-                (card, index) => (GetCardValue(card, trumpSuit), index))
+            var copy = cards.ToList();
+            var startingSuit = copy[0].Suit;
+            var (cardValue, index) = copy.Select(
+                (card, index) => (GetCardValue(card, startingSuit, trumpSuit), index))
                 .Max();
             return index;
         }
 
-        private static int GetCardValue(Card card, Suit trumpSuit)
+        private static int GetCardValue(Card card, Suit startingSuit, Suit trumpSuit)
         {
             var value = ((int)card.Rank + 11) % 13;
             if (card.Suit == trumpSuit)
                 value += 100;
-            return value;
+            if (card.Suit != startingSuit && card.Suit != trumpSuit)
+                return 0;
+            else
+                return value;
         }
 
     }
