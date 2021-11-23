@@ -22,6 +22,7 @@ namespace CardGame.Tests
             Assert.Equal(c1, c2);
             Assert.NotEqual(c1, c3);
             Assert.NotEqual(c1, c4);
+            Assert.True(c1.Equals(c2));
         }
         
     }

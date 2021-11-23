@@ -26,7 +26,7 @@ namespace CardGame.Tests
             deck.Shuffle();
             var c4 = deck.Peek();
             
-            Assert.True(c1 != c2 || c2 != c3 || c3 != c4);
+            Assert.True(!c1.Equals(c2) || !c2.Equals(c3) || !c3.Equals(c4));
         }
         
         [Fact]
