@@ -22,5 +22,17 @@ namespace CardGame
         {
             return _icons[(int)s];
         }
+
+        public static Suit? FromString(string s)
+        {
+            return s switch
+            {
+                "♣" => Suit.Club,
+                "♦" => Suit.Diamond,
+                "♥" => Suit.Heart,
+                "♠" => Suit.Spade,
+                _ => null
+            };
+        }
     }
 }

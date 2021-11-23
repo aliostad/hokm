@@ -29,5 +29,26 @@ namespace CardGame
         {
             return ToString().GetHashCode();
         }
+
+        public static Card? FromString(string s)
+        {
+            if (s == null)
+                return null;
+            
+            var len = s.Length;
+            if (len != 2 && len != 3)
+                return null;
+
+            var suitString = s.Substring(len - 1);
+            var rankString = s.Substring(0, len - 1);
+
+            var rank = RankInfo.FromString(rankString);
+            var suit = SuitInfo.FromString(suitString);
+
+            if (!rank.HasValue || !suit.HasValue)
+                return null;
+
+            return new Card(suit.Value, rank.Value);
+        }
     }
 }

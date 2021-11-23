@@ -7,29 +7,39 @@ namespace Hokm
 {
     public class Game
     {
-        public Team Team1 { get; init; }
-        
-        public Team Team2 { get; init; }
-        
         public PlayerPosition Caller { get; init; }
         
-
         private List<PlayerPosition> _playingOrder;
 
         private Suit _trumpSuit;
         
-        public Game(Team team1, Team team2, PlayerPosition caller)
+        public event EventHandler TrickCompleted; 
+        
+        public Game(Team team1, 
+            Team team2, 
+            PlayerPosition caller, 
+            TimeSpan? delay = null)
         {
             Team1 = team1;
             Team2 = team2;
             Caller = caller;
 
-            _playingOrder = Enumerable.Range(0, 4)
-                .Select(x => (x + (int)caller) % 4)
-                .Cast<PlayerPosition>().ToList();
+            _playingOrder = FindPlayingOrder(caller);
 
         }
 
+        public Team Team1 { get; init; }
+        
+        public Team Team2 { get; init; }
+
+        
+        internal static List<PlayerPosition> FindPlayingOrder(PlayerPosition startingPosition)
+        {
+            return Enumerable.Range(0, 4)
+                .Select(x => (x + (int)startingPosition) % 4)
+                .Cast<PlayerPosition>().ToList();
+        }
+        
         internal IPlayer GetPlayer(PlayerPosition position)
         {
             return position switch
@@ -42,6 +52,11 @@ namespace Hokm
             };
         }
 
+        protected void OnTrickCompleted(TrickCompletedEventArgs args)
+        {
+            TrickCompleted?.Invoke(this, args);
+        }
+        
         public Suit Deal()
         {
             var trumpCaller = GetPlayer(Caller);
@@ -62,8 +77,29 @@ namespace Hokm
             
             return _trumpSuit;
         }
-        
-        
-        
+
+        public TrickOutcome PlayTrick(TimeSpan? delay = null)
+        {
+            var cardsPlayed = new List<Card>();
+
+            throw new NotImplementedException();
+        }
+
+        public static int DecideWinnerCard(IEnumerable<Card> cards, Suit trumpSuit)
+        {
+            var (cardValue, index) = cards.Select(
+                (card, index) => (GetCardValue(card, trumpSuit), index))
+                .Max();
+            return index;
+        }
+
+        private static int GetCardValue(Card card, Suit trumpSuit)
+        {
+            var value = ((int)card.Rank + 11) % 13;
+            if (card.Suit == trumpSuit)
+                value += 100;
+            return value;
+        }
+
     }
 }

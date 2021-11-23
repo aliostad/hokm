@@ -24,6 +24,17 @@ namespace CardGame.Tests
             Assert.NotEqual(c1, c4);
             Assert.True(c1.Equals(c2));
         }
+
+        [Theory]
+        [InlineData("J♣", Suit.Club, Rank.Jack)]
+        [InlineData("10♣", Suit.Club, Rank.Ten)]
+        [InlineData("2♥", Suit.Heart, Rank.Two)]
+        [InlineData("K♦", Suit.Diamond, Rank.King)]
+        [InlineData("6♠", Suit.Spade, Rank.Six)]
+        public void FromStringWorks(string s, Suit suit, Rank rank)
+        {
+            Assert.Equal(new Card(suit, rank), Card.FromString(s));    
+        }
         
     }
 }
