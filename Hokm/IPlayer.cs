@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CardGame;
 
 namespace Hokm
@@ -10,14 +11,14 @@ namespace Hokm
 
         string Name { get; }
 
-        void ReceiveHand(IEnumerable<Card> cards);
+        Task ReceiveHandAsync(IEnumerable<Card> cards);
 
-        Suit CallTrumpSuit();
+        Task<Suit> CallTrumpSuitAsync();
 
-        Card Play(IEnumerable<Card> playedByOthers);
+        Task<Card> PlayAsync(IEnumerable<Card> playedByOthers);
 
-        string Banter();
+        Task<string> BanterAsync();
 
-        void NewGame();
+        Task NewGame();
     }
 }

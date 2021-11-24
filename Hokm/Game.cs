@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CardGame;
 
 namespace Hokm
@@ -57,21 +58,21 @@ namespace Hokm
             TrickCompleted?.Invoke(this, args);
         }
         
-        public Suit Deal()
+        public async Task<Suit> DealAsync()
         {
             var trumpCaller = GetPlayer(Caller);
             var deck = new Deck().Shuffle();
-            trumpCaller.ReceiveHand(deck.Deal(5));
-            _trumpSuit = trumpCaller.CallTrumpSuit();
-            GetPlayer(_playingOrder[1]).ReceiveHand(deck.Deal(5));
-            GetPlayer(_playingOrder[2]).ReceiveHand(deck.Deal(5));
-            GetPlayer(_playingOrder[3]).ReceiveHand(deck.Deal(5));
+            await trumpCaller.ReceiveHandAsync(deck.Deal(5));
+            _trumpSuit = await trumpCaller.CallTrumpSuitAsync();
+            await GetPlayer(_playingOrder[1]).ReceiveHandAsync(deck.Deal(5));
+            await GetPlayer(_playingOrder[2]).ReceiveHandAsync(deck.Deal(5));
+            await GetPlayer(_playingOrder[3]).ReceiveHandAsync(deck.Deal(5));
 
             for (int i = 0; i < 2; i++)
             {
                 foreach (var position in _playingOrder)
                 {
-                    GetPlayer(position).ReceiveHand(deck.Deal(4));
+                    await GetPlayer(position).ReceiveHandAsync(deck.Deal(4));
                 }
             }
             
