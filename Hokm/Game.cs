@@ -6,6 +6,9 @@ using CardGame;
 
 namespace Hokm
 {
+    /// <summary>
+    /// A round of Hokm when the hand is dealt and played until one team wins 7 'tricks'
+    /// </summary>
     public class Game
     {
         public PlayerPosition Caller { get; init; }

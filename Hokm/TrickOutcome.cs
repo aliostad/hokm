@@ -5,9 +5,7 @@ namespace Hokm
 {
     public record TrickOutcome
     {
-        public bool WasTrumped { get; init; }
-        
-        public bool WasMultiTrumped { get; init; }
+        public TrumpUsage TrumpUsage { get; init; }
         
         public PlayerPosition Winner { get; init; }
         
