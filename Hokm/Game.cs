@@ -131,6 +131,12 @@ namespace Hokm
                 TrumpUsage = GetUsage(cardsPlayed, _trumpSuit)
             };
 
+            foreach (var position in playingOrder)
+            {
+                var p = GetPlayer(position);
+                await p.InformTrickOutcomeAsync(outcome);
+            }
+
             return outcome;
         }
 

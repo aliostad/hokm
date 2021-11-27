@@ -5,20 +5,18 @@ using CardGame;
 
 namespace Hokm
 {
-    public interface IPlayer
+    public interface IPlayer : IPlayerInfo
     {
-        Guid Id { get; }
-
-        string Name { get; }
-
         Task ReceiveHandAsync(IEnumerable<Card> cards);
 
         Task<Suit> CallTrumpSuitAsync();
 
         Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers);
 
+        Task InformTrickOutcomeAsync(TrickOutcome outcome);
+        
         Task<string> BanterAsync();
 
-        Task NewGame();
+        Task NewGame(IDictionary<PlayerPosition, IPlayerInfo> playerInfos);
     }
 }
