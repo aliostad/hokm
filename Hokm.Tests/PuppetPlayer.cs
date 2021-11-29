@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CardGame;
 
@@ -31,9 +32,22 @@ namespace Hokm.Tests
             return Task.FromResult(Cards[0].Suit);
         }
 
-        public Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers)
+        public Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers, Suit trumpSuit)
         {
-            return Task.FromResult(Cards[0]);
+            var local = playedByOthers.ToArray();
+            if (local.Length == 0)
+                return Task.FromResult(Cards[5]);
+
+            var sameSuit = Cards.FirstOrDefault(x => x.Suit == local[0].Suit);
+            if (sameSuit != null)
+                return Task.FromResult<Card>(sameSuit);
+
+            var trump = Cards.FirstOrDefault(x => x.Suit == trumpSuit);
+            if (trump != null)
+                return Task.FromResult<Card>(trump);
+
+            return Task.FromResult<Card>(Cards[0]);
+
         }
 
         public Task<string> InformTrickOutcomeAsync(TrickOutcome outcome)

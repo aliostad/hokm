@@ -11,7 +11,7 @@ namespace Hokm
 
         Task<Suit> CallTrumpSuitAsync();
 
-        Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers);
+        Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers, Suit trumpSuit);
 
         // they could banter
         Task<string> InformTrickOutcomeAsync(TrickOutcome outcome);

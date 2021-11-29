@@ -53,6 +53,7 @@ namespace Hokm.Tests
             var outcome = await game.PlayTrickAsync();
             _output.WriteLine(string.Join("-", outcome.CardsPlayed.Select(x => x.ToString())));
             _output.WriteLine(outcome.Winner.ToString());
+            _output.WriteLine(outcome.TrumpUsage.ToString());
             
             Assert.Equal(outcome, players[PlayerPosition.Team1Player1].LastOutcome);
         }

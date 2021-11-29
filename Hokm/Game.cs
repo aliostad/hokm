@@ -134,10 +134,11 @@ namespace Hokm
                 if (inBetweenDelay.HasValue)
                     await Task.Delay(inBetweenDelay.Value);
                 
-                var card = await p.PlayAsync(_currentTrickNumber, cardsPlayed);
+                var card = await p.PlayAsync(_currentTrickNumber, cardsPlayed, _trumpSuit);
                 var result = _shadows[position].ValidateAndPlay(card, cardsPlayed.Count == 0 ? card.Suit : cardsPlayed[0].Suit);
                 if (!result.IsValid)
-                {   
+                {
+                    throw new InvalidPlayException(result.Error);
                     // TODO
                 }
                 cardsPlayed.Add(card);
