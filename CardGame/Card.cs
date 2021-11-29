@@ -30,7 +30,7 @@ namespace CardGame
             return ToString().GetHashCode();
         }
 
-        public static Card? FromString(string s)
+        public static Card FromString(string s)
         {
             if (s == null)
                 return null;

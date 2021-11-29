@@ -13,10 +13,11 @@ namespace Hokm
 
         Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers);
 
-        Task InformTrickOutcomeAsync(TrickOutcome outcome);
+        // they could banter
+        Task<string> InformTrickOutcomeAsync(TrickOutcome outcome);
         
         Task<string> BanterAsync();
 
-        Task NewGame(IDictionary<PlayerPosition, IPlayerInfo> playerInfos);
+        Task NewGame(IDictionary<PlayerPosition, IPlayerInfo> playerInfos, PlayerPosition caller);
     }
 }

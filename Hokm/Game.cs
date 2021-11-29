@@ -8,6 +8,19 @@ namespace Hokm
 {
     /// <summary>
     /// A round of Hokm when the hand is dealt and played until one team wins 7 'tricks'
+    ///
+    ///
+    /// Anti-clockwise:
+    ///
+    /// ---------------------------------------------------
+    /// |              |  Team1Player1   |                |
+    /// ---------------------------------------------------
+    /// | Team2Player1 |                 |  Team2Player2  |
+    /// ---------------------------------------------------
+    /// |              |  Team1Player2   |                |
+    /// ---------------------------------------------------
+    ///
+    /// 
     /// </summary>
     public class Game
     {
@@ -20,17 +33,21 @@ namespace Hokm
         private PlayerPosition _currentTrickStarter;
         
         private Dictionary<PlayerPosition, PlayerShadow> _shadows = 
-                (new [] {PlayerPosition.Team1Player1, PlayerPosition.Team1Player2,
-                PlayerPosition.Team2Player1, PlayerPosition.Team2Player2})
-                .ToDictionary(x => x, y => new PlayerShadow());
+                PlayerPositions.All.ToDictionary(x => x, y => new PlayerShadow());
 
-        public event EventHandler TrickCompleted; 
+        private Func<IEnumerable<Card>, IEnumerable<Card>> _suffler;
+
+        public event EventHandler<TrickCompletedEventArgs> TrickCompleted;
+
+        public event EventHandler<BanterUtteredEventArgs> BanterUttered;  
         
         public Game(Team team1, 
             Team team2, 
-            PlayerPosition caller, 
+            PlayerPosition caller,
+            Func<IEnumerable<Card>, IEnumerable<Card>> suffler = null,
             TimeSpan? delay = null)
         {
+            _suffler = suffler;
             Team1 = team1;
             Team2 = team2;
             Caller = caller;
@@ -68,11 +85,16 @@ namespace Hokm
             TrickCompleted?.Invoke(this, args);
         }
         
+        protected void OnBanterUttered(BanterUtteredEventArgs args)
+        {
+            BanterUttered?.Invoke(this, args);
+        }
+
         public async Task<Suit> DealAsync()
         {
             var playingOrder = BuildPlayingOrder(Caller);
             var trumpCaller = GetPlayer(Caller);
-            var deck = new Deck().Shuffle();
+            var deck = new Deck(_suffler).Shuffle();
 
             foreach (var position in playingOrder)
             {
@@ -113,7 +135,7 @@ namespace Hokm
                     await Task.Delay(inBetweenDelay.Value);
                 
                 var card = await p.PlayAsync(_currentTrickNumber, cardsPlayed);
-                var result = _shadows[position].ValidateAndPlay(card);
+                var result = _shadows[position].ValidateAndPlay(card, cardsPlayed.Count == 0 ? card.Suit : cardsPlayed[0].Suit);
                 if (!result.IsValid)
                 {   
                     // TODO
@@ -131,12 +153,16 @@ namespace Hokm
                 TrumpUsage = GetUsage(cardsPlayed, _trumpSuit)
             };
 
+            OnTrickCompleted(new TrickCompletedEventArgs(){ Outcome = outcome});
+            
             foreach (var position in playingOrder)
             {
                 var p = GetPlayer(position);
-                await p.InformTrickOutcomeAsync(outcome);
+                var banter = await p.InformTrickOutcomeAsync(outcome);
+                if (banter != null) 
+                    OnBanterUttered(new BanterUtteredEventArgs() { Banter = banter, PlayerInfo = p});
             }
-
+            
             return outcome;
         }
 

@@ -7,9 +7,12 @@ namespace CardGame
     public class Deck
     {
         protected Stack<Card> _cards = new Stack<Card>();
+        private Func<IEnumerable<Card>, IEnumerable<Card>> _suffler;
 
-        public Deck()
+        public Deck(Func<IEnumerable<Card>, IEnumerable<Card>> suffler = null)
         {
+            _suffler = suffler ?? DefaultShuffler;
+                
             for (var i = 0; i < 4; i++)
             {
                 var suit = (Suit)i;
@@ -28,8 +31,13 @@ namespace CardGame
         
         public Deck Shuffle()
         {
-            _cards = new Stack<Card>(_cards.OrderBy(card => Guid.NewGuid()));
+            _cards = new Stack<Card>(_suffler(_cards));
             return this;
+        }
+
+        private IEnumerable<Card> DefaultShuffler(IEnumerable<Card> cards)
+        {
+            return cards.OrderBy(card => Guid.NewGuid());
         }
 
         public IEnumerable<Card> Deal(int n)

@@ -11,13 +11,7 @@ namespace Hokm
         public int TricksWonByTeam2 => TricksWon[PlayerPosition.Team2Player1] + TricksWon[PlayerPosition.Team2Player2];
         
         public Dictionary<PlayerPosition, int> TricksWon { get; } = 
-            (new[]
-            {
-                PlayerPosition.Team1Player1,
-                PlayerPosition.Team1Player2,
-                PlayerPosition.Team2Player1,
-                PlayerPosition.Team2Player2
-            })
+            PlayerPositions.All
             .ToDictionary(k => k, v => 0);
 
         public void RegisterWin(PlayerPosition position)

@@ -6,4 +6,11 @@ namespace Hokm
     {
         public TrickOutcome Outcome { get; init; }
     }
+
+    public class BanterUtteredEventArgs : EventArgs
+    {
+        public IPlayerInfo PlayerInfo { get; init; }
+        
+        public string Banter { get; init; }
+    }
 }
