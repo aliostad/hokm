@@ -13,4 +13,9 @@ namespace Hokm
         
         public string Banter { get; init; }
     }
+
+    public class GameFinishedEventArgs : EventArgs
+    {
+        public GameScore Score { get; init; }
+    }
 }

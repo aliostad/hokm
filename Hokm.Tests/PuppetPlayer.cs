@@ -61,10 +61,25 @@ namespace Hokm.Tests
             return Task.FromResult<string>("Wat??");
         }
 
-        public Task NewGame(IDictionary<PlayerPosition, IPlayerInfo> playerInfos, PlayerPosition caller)
+        public Task NewGame(MatchScore currentMatchScore, PlayerPosition caller)
         {
             Caller = caller;
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GameFinished(GameOutcome outcome, GameScore currentScore)
+        {
+            return Task.FromResult<string>("No luck!");
+        }
+
+        public Task NewMatchAsync(IDictionary<PlayerPosition, IPlayerInfo> playerInfos)
+        {
             Infos = playerInfos;
+            return Task.CompletedTask;
+        }
+
+        public Task MatchFinished(MatchScore score)
+        {
             return Task.CompletedTask;
         }
     }

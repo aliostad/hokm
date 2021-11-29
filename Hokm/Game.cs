@@ -13,7 +13,7 @@ namespace Hokm
     /// Anti-clockwise:
     ///
     /// ---------------------------------------------------
-    /// |              |  Team1Player1   |                |
+    /// |              |  Team1Player1*  |                |
     /// ---------------------------------------------------
     /// | Team2Player1 |                 |  Team2Player2  |
     /// ---------------------------------------------------
@@ -35,18 +35,24 @@ namespace Hokm
         private Dictionary<PlayerPosition, PlayerShadow> _shadows = 
                 PlayerPositions.All.ToDictionary(x => x, y => new PlayerShadow());
 
+        private readonly MatchScore _matchScore;
         private Func<IEnumerable<Card>, IEnumerable<Card>> _suffler;
 
         public event EventHandler<TrickCompletedEventArgs> TrickCompleted;
 
-        public event EventHandler<BanterUtteredEventArgs> BanterUttered;  
+        public event EventHandler<BanterUtteredEventArgs> BanterUttered;
+
+        public event EventHandler<GameFinishedEventArgs> GameFinished;
         
-        public Game(Team team1, 
+        public Game(
+            MatchScore matchScore,
+            Team team1, 
             Team team2, 
             PlayerPosition caller,
             Func<IEnumerable<Card>, IEnumerable<Card>> suffler = null,
             TimeSpan? delay = null)
         {
+            _matchScore = matchScore;
             _suffler = suffler;
             Team1 = team1;
             Team2 = team2;
@@ -83,6 +89,10 @@ namespace Hokm
         protected void OnTrickCompleted(TrickCompletedEventArgs args)
         {
             TrickCompleted?.Invoke(this, args);
+
+            Score.RegisterWin(args.Outcome.Winner);
+            if (Score.IsCompleted)
+                OnGameFinished(new GameFinishedEventArgs() {Score = Score});
         }
         
         protected void OnBanterUttered(BanterUtteredEventArgs args)
@@ -90,6 +100,12 @@ namespace Hokm
             BanterUttered?.Invoke(this, args);
         }
 
+        protected void OnGameFinished(GameFinishedEventArgs args)
+        {
+            GameFinished?.Invoke(this, args);
+        }
+        
+        
         public async Task<Suit> DealAsync()
         {
             var playingOrder = BuildPlayingOrder(Caller);
@@ -139,7 +155,7 @@ namespace Hokm
                 if (!result.IsValid)
                 {
                     throw new InvalidPlayException(result.Error);
-                    // TODO
+                    // TODO: alternative to raising exception is to play for the player
                 }
                 cardsPlayed.Add(card);
             }

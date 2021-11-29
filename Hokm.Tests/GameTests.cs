@@ -38,7 +38,8 @@ namespace Hokm.Tests
                 p => p, 
                 pp => new PuppetPlayer());
 
-            var game = new Game(new Team()
+            var game = new Game(new MatchScore(),
+                new Team()
                 {
                     Player1 = players[PlayerPosition.Team1Player1],
                     Player2 = players[PlayerPosition.Team1Player2]

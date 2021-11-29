@@ -18,6 +18,12 @@ namespace Hokm
         
         Task<string> BanterAsync();
 
-        Task NewGame(IDictionary<PlayerPosition, IPlayerInfo> playerInfos, PlayerPosition caller);
+        Task NewGame(MatchScore currentMatchScore, PlayerPosition caller);
+
+        Task<string> GameFinished(GameOutcome outcome, GameScore currentScore);
+
+        Task NewMatchAsync(IDictionary<PlayerPosition, IPlayerInfo> playerInfos);
+
+        Task MatchFinished(MatchScore score);
     }
 }
