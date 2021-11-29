@@ -7,7 +7,7 @@ namespace Hokm
 {
     public class MatchScore
     {
-        public MatchScore(int bestOf = 15)
+        public MatchScore(int bestOf = 13)
         {
             BestOf = bestOf;
             if (bestOf % 2 == 0)
@@ -21,23 +21,36 @@ namespace Hokm
 
         private int _limit;
         
-        public int GamesWonByTeam1 { get; private set; } = 0;
+        public int Team1Points { get; private set; } = 0;
         
-        public int GamesWonByTeam2 { get; private set; } = 0;
+        public int Team2Points { get; private set; } = 0;
 
         public int BestOf { get; init; }
         
         
-        public bool IsCompleted =>  GamesWonByTeam1 >= _limit && GamesWonByTeam2 >= _limit;
+        public bool IsCompleted =>  Team1Points >= _limit && Team2Points >= _limit;
         
         
-        public void RegisterGameWin(bool isTeam1)
+        public void RegisterGameWin(GameScore score, PlayerPosition caller)
         {
-            if (isTeam1)
-                GamesWonByTeam1++;
-            else
-                GamesWonByTeam2++;
-        }
+            var point = 1;
+            
+            // was kot
+            if (score.TricksWonByTeam1 == 0 || score.TricksWonByTeam2 == 0)
+                point++;
+            
+            // was trump called kot
+            var team1Won = score.TricksWonByTeam1 > score.TricksWonByTeam2;
+            var team1WasCaller = PlayerPositions.IsTeam1(caller);
 
+            if (point > 1 && (team1Won ^ team1WasCaller))
+                point++;
+
+            if (team1Won)
+                Team1Points += point;
+            else
+                Team2Points += point;
+
+        } 
     }
 }

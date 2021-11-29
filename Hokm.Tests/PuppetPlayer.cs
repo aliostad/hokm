@@ -32,11 +32,18 @@ namespace Hokm.Tests
             return Task.FromResult(Cards[0].Suit);
         }
 
-        public Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers, Suit trumpSuit)
+        public async Task<Card> PlayAsync(int trickNumber, IEnumerable<Card> playedByOthers, Suit trumpSuit)
+        {
+            var card = await InternalPlayAsync(trickNumber, playedByOthers, trumpSuit);
+            Cards.Remove(card);
+            return card;
+        }
+
+        private Task<Card> InternalPlayAsync(int trickNumber, IEnumerable<Card> playedByOthers, Suit trumpSuit)
         {
             var local = playedByOthers.ToArray();
             if (local.Length == 0)
-                return Task.FromResult(Cards[5]);
+                return Task.FromResult(Cards.OrderBy(x => Guid.NewGuid()).First());
 
             var sameSuit = Cards.FirstOrDefault(x => x.Suit == local[0].Suit);
             if (sameSuit != null)
@@ -47,9 +54,8 @@ namespace Hokm.Tests
                 return Task.FromResult<Card>(trump);
 
             return Task.FromResult<Card>(Cards[0]);
-
         }
-
+        
         public Task<string> InformTrickOutcomeAsync(TrickOutcome outcome)
         {
             LastOutcome = outcome;

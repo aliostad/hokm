@@ -57,6 +57,7 @@ namespace Hokm.Tests
             _output.WriteLine(outcome.TrumpUsage.ToString());
             
             Assert.Equal(outcome, players[PlayerPosition.Team1Player1].LastOutcome);
+            Assert.Equal(1, game.Score.TricksWonByTeam1 + game.Score.TricksWonByTeam2);
         }
         
     }

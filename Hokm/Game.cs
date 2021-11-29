@@ -49,8 +49,7 @@ namespace Hokm
             Team team1, 
             Team team2, 
             PlayerPosition caller,
-            Func<IEnumerable<Card>, IEnumerable<Card>> suffler = null,
-            TimeSpan? delay = null)
+            Func<IEnumerable<Card>, IEnumerable<Card>> suffler = null)
         {
             _matchScore = matchScore;
             _suffler = suffler;
@@ -162,7 +161,6 @@ namespace Hokm
 
             int index = DecideWinnerCard(cardsPlayed, _trumpSuit);
             _currentTrickStarter = playingOrder[index];
-            Score.RegisterWin(_currentTrickStarter);
             var outcome = new TrickOutcome()
             {
                 Winner = _currentTrickStarter,

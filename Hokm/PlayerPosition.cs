@@ -19,5 +19,10 @@ namespace Hokm
             PlayerPosition.Team2Player1,
             PlayerPosition.Team2Player2
         };
+
+        public static bool IsTeam1(PlayerPosition position)
+        {
+            return position is PlayerPosition.Team1Player1 or PlayerPosition.Team1Player2;
+        }
     }
 }
