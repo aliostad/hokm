@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace Hokm
 {
@@ -13,6 +14,8 @@ namespace Hokm
         public MatchScore Score { get; init; }
         
         public PlayerPosition CurrentTrumpCaller { get; private set; }
+        
+        public int CurrentGameNumber { get; private set; }
 
         public Match(Team team1, 
             Team team2,
@@ -29,7 +32,8 @@ namespace Hokm
             if (Score.IsCompleted)
                 throw new InvalidOperationException("Match is finished, game cannot started");
 
-            var g = new Game(Score, Team1, Team2, CurrentTrumpCaller);
+            CurrentGameNumber++;
+            var g = new Game(CurrentGameNumber, Score, Team1, Team2, CurrentTrumpCaller);
             g.BanterUttered += OnBanterUttered;
             g.TrickCompleted += OnTrickCompleted;
             

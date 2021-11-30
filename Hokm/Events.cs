@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using CardGame;
 
 namespace Hokm
 {
@@ -17,5 +19,18 @@ namespace Hokm
     public class GameFinishedEventArgs : EventArgs
     {
         public GameScore Score { get; init; }
+    }
+
+    public class CardPlayedEventArgs : EventArgs
+    {
+        public IEnumerable<Card> Cards { get; init; }
+        
+        public PlayerPosition StarterPlayer { get; init; }
+        
+        public Suit TrumpSuit { get; init; }
+        
+        public int TrickNumber { get; init; }
+        
+        public int GameNumber { get; set; }
     }
 }

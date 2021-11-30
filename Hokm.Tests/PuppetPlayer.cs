@@ -12,12 +12,14 @@ namespace Hokm.Tests
         
         public string Name { get; init; }
 
-        public PlayerPosition Caller { get; set; }
+        public PlayerPosition CurrentCaller { get; set; }
         
         public List<Card> Cards { get; } = new List<Card>();
         
         public IDictionary<PlayerPosition, IPlayerInfo> Infos { get; set; }
+        
 
+        public PlayerPosition MyPosition { get; set; }
         
         public TrickOutcome LastOutcome { get; set; }
         
@@ -69,7 +71,7 @@ namespace Hokm.Tests
 
         public Task NewGame(MatchScore currentMatchScore, PlayerPosition caller)
         {
-            Caller = caller;
+            CurrentCaller = caller;
             return Task.CompletedTask;
         }
 
@@ -78,9 +80,10 @@ namespace Hokm.Tests
             return Task.FromResult<string>("No luck!");
         }
 
-        public Task NewMatchAsync(IDictionary<PlayerPosition, IPlayerInfo> playerInfos)
+        public Task NewMatchAsync(IDictionary<PlayerPosition, IPlayerInfo> playerInfos, PlayerPosition yourPosition)
         {
             Infos = playerInfos;
+            MyPosition = yourPosition;
             return Task.CompletedTask;
         }
 

@@ -43,8 +43,13 @@ namespace Hokm
         public event EventHandler<BanterUtteredEventArgs> BanterUttered;
 
         public event EventHandler<GameFinishedEventArgs> GameFinished;
+
+        public event EventHandler<CardPlayedEventArgs> CardPlayed; 
+        
+        
         
         public Game(
+            int gameNumber,
             MatchScore matchScore,
             Team team1, 
             Team team2, 
@@ -57,6 +62,7 @@ namespace Hokm
             Team2 = team2;
             Caller = caller;
             _currentTrickStarter = caller;
+            GameNumber = gameNumber;
         }
 
         public Team Team1 { get; init; }
@@ -64,6 +70,8 @@ namespace Hokm
         public Team Team2 { get; init; }
 
         public GameScore Score { get; } = new GameScore();
+        
+        public int GameNumber { get; init; }
         
         internal static List<PlayerPosition> BuildPlayingOrder(PlayerPosition startingPosition)
         {
@@ -102,6 +110,11 @@ namespace Hokm
         protected void OnGameFinished(GameFinishedEventArgs args)
         {
             GameFinished?.Invoke(this, args);
+        }
+        
+        protected void OnCardPlayed(CardPlayedEventArgs args)
+        {
+            CardPlayed?.Invoke(this, args);
         }
         
         
@@ -157,6 +170,14 @@ namespace Hokm
                     // TODO: alternative to raising exception is to play for the player
                 }
                 cardsPlayed.Add(card);
+                OnCardPlayed(new CardPlayedEventArgs()
+                {
+                    Cards = cardsPlayed.ToArray(), 
+                    GameNumber = GameNumber, 
+                    StarterPlayer = playingOrder[0], 
+                    TrickNumber = _currentTrickNumber,
+                    TrumpSuit = _trumpSuit
+                });
             }
 
             int index = DecideWinnerCard(cardsPlayed, _trumpSuit);

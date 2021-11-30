@@ -22,7 +22,7 @@ namespace Hokm
 
         Task<string> GameFinished(GameOutcome outcome, GameScore currentScore);
 
-        Task NewMatchAsync(IDictionary<PlayerPosition, IPlayerInfo> playerInfos);
+        Task NewMatchAsync(IDictionary<PlayerPosition, IPlayerInfo> playerInfos, PlayerPosition yourPosition);
 
         Task MatchFinished(MatchScore score);
     }
