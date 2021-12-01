@@ -16,9 +16,8 @@ namespace Hokm
         
         public int CurrentGameNumber { get; private set; }
 
-        public event EventHandler<GameStartedEventArgs> GameStarted; 
+        public event EventHandler<MatchEventArgs> MatchEvent; 
 
-        public event EventHandler<GameFinishedEventArgs> GameFinished;
 
         private Game _currentGame = null;
         
@@ -41,10 +40,13 @@ namespace Hokm
             var g = new Game(CurrentGameNumber, Score, Team1, Team2, CurrentTrumpCaller);
             _currentGame = g;
             g.BanterUttered += OnBanterUttered;
-            g.TrickCompleted += OnTrickCompleted;
+            g.TrickFinished += OnTrickFinished;
+            g.CardPlayed += OnCardPlayed;
+            g.CardsDealt += OnCardsDealt;
+            g.TrickStarted += OnTrickStarted;
             
-            OnGameStarted(new GameStartedEventArgs() {Game = g});
-            
+            RaiseEvent(EventType.GameStarted);
+
             await g.DealAsync();
 
             while (!g.Score.IsCompleted)
@@ -65,17 +67,33 @@ namespace Hokm
                 CurrentTrumpCaller = (PlayerPosition)(((int)CurrentTrumpCaller + 1) % 4);
             
             g.BanterUttered -= OnBanterUttered;
-            g.TrickCompleted -= OnTrickCompleted;
-
-            OnGameFinished(new GameFinishedEventArgs() {Game = g});
+            g.TrickFinished -= OnTrickFinished;
+            
             _currentGame = null;
+            
+            RaiseEvent(EventType.GameFinished);
             
             return g;
         }
 
-        private void OnTrickCompleted(object sender, TrickCompletedEventArgs e)
+        private void OnTrickStarted(object sender, EventArgs e)
+        {
+            RaiseEvent(EventType.TrickStarted);
+        }
+
+        private void OnCardsDealt(object sender, CardsDealtEventArgs e)
         {
             
+        }
+
+        private void OnCardPlayed(object sender, CardPlayedEventArgs e)
+        {
+            RaiseEvent(EventType.CardPlayed);
+        }
+
+        private void OnTrickFinished(object sender, TrickFinishedEventArgs e)
+        {
+            RaiseEvent(EventType.TrickFinished);
         }
 
         private void OnBanterUttered(object sender, BanterUtteredEventArgs e)
@@ -83,16 +101,20 @@ namespace Hokm
             
         }
 
-        protected void OnGameStarted(GameStartedEventArgs args)
+        private void RaiseEvent(EventType eventType)
         {
-            GameStarted?.Invoke(this, args);
+            OnMatchEvent(new MatchEventArgs()
+            {
+                Info = this.ToInfo(),
+                EventType = eventType
+            });            
         }
-
-        protected void OnGameFinished(GameFinishedEventArgs args)
+        
+        protected void OnMatchEvent(MatchEventArgs args)
         {
-            GameFinished?.Invoke(this, args);
+            MatchEvent?.Invoke(this, args);
         }
-
+        
         public MatchInfo ToInfo()
         {
             return new MatchInfo()

@@ -4,7 +4,7 @@ using CardGame;
 
 namespace Hokm
 {
-    public class TrickCompletedEventArgs : EventArgs
+    public class TrickFinishedEventArgs : EventArgs
     {
         public TrickOutcome Outcome { get; init; }
     }
@@ -38,5 +38,18 @@ namespace Hokm
     {
         public Game Game { get; init; }
     }
-    
+
+    public class CardsDealtEventArgs : EventArgs
+    {
+        public IDictionary<PlayerPosition, IEnumerable<Card>> Hands { get; init; }
+        
+        public Suit TrumpSuit { get; init; }
+    }
+
+    public class MatchEventArgs : EventArgs
+    {
+        public MatchInfo Info { get; init; }
+        
+        public EventType EventType { get; init; }
+    }
 }

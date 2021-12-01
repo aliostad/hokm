@@ -5,10 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="wwwrooot" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\CardGame\CardGame.csproj" />
       <ProjectReference Include="..\Hokm\Hokm.csproj" />
     </ItemGroup>

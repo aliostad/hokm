@@ -38,16 +38,19 @@ namespace Hokm
         private readonly MatchScore _matchScore;
         private Func<IEnumerable<Card>, IEnumerable<Card>> _suffler;
 
-        public event EventHandler<TrickCompletedEventArgs> TrickCompleted;
+        public event EventHandler<TrickFinishedEventArgs> TrickFinished;
 
         public event EventHandler<BanterUtteredEventArgs> BanterUttered;
 
         public event EventHandler<GameFinishedEventArgs> GameFinished;
 
-        public event EventHandler<CardPlayedEventArgs> CardPlayed; 
-        
-        
-        
+        public event EventHandler<CardPlayedEventArgs> CardPlayed;
+
+        public event EventHandler<CardsDealtEventArgs> CardsDealt;
+
+        public event EventHandler<EventArgs> TrickStarted;
+
+
         public Game(
             int gameNumber,
             MatchScore matchScore,
@@ -95,9 +98,9 @@ namespace Hokm
             };
         }
 
-        protected void OnTrickCompleted(TrickCompletedEventArgs args)
+        protected void OnTrickFinished(TrickFinishedEventArgs args)
         {
-            TrickCompleted?.Invoke(this, args);
+            TrickFinished?.Invoke(this, args);
 
             Score.RegisterWin(args.Outcome.Winner);
             if (Score.IsCompleted)
@@ -118,7 +121,17 @@ namespace Hokm
         {
             CardPlayed?.Invoke(this, args);
         }
-        
+
+        protected void OnCardsDealt(CardsDealtEventArgs args)
+        {
+            CardsDealt?.Invoke(this, args);
+        }
+
+        protected void OnTrickStarted(EventArgs args)
+        {
+            TrickStarted?.Invoke(this, args);
+        }
+
         
         public async Task<Suit> DealAsync()
         {
@@ -149,12 +162,21 @@ namespace Hokm
                 }
             }
             
+            OnCardsDealt(new CardsDealtEventArgs()
+            {
+                TrumpSuit = _trumpSuit,
+                Hands = _shadows.ToDictionary(x => x.Key, 
+                    kv => kv.Value._handCards.Select(y => y))
+            });
+            
             return _trumpSuit;
         }
 
         public async Task<TrickOutcome> PlayTrickAsync(TimeSpan? inBetweenDelay = null)
         {
             _currentTrickNumber++;
+            OnTrickStarted(EventArgs.Empty);
+            
             var playingOrder = BuildPlayingOrder(_currentTrickStarter);
             var cardsPlayed = new List<Card>();
             CurrentTrick = new TrickInfo()
@@ -199,7 +221,7 @@ namespace Hokm
                 TrumpUsage = GetUsage(cardsPlayed, _trumpSuit)
             };
 
-            OnTrickCompleted(new TrickCompletedEventArgs(){ Outcome = outcome});
+            OnTrickFinished(new TrickFinishedEventArgs(){ Outcome = outcome});
             
             foreach (var position in playingOrder)
             {
