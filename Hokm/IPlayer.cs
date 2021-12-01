@@ -26,4 +26,12 @@ namespace Hokm
 
         Task MatchFinished(MatchScore score);
     }
+
+    public static class PlayerExtensions
+    {
+        public static PlayerInfo ToInfo(this IPlayer player)
+        {
+            return new PlayerInfo() { Id = player.Id, Name = player.Name };
+        }
+    }
 }

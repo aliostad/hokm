@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hokm", "Hokm\Hokm.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hokm.Tests", "Hokm.Tests\Hokm.Tests.csproj", "{E0C2AB55-6268-404A-B887-D60FE736270B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hokm.GameServer", "Hokm.GameServer\Hokm.GameServer.csproj", "{0C5FAB30-9202-4385-BBEE-10F4093A37B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{E0C2AB55-6268-404A-B887-D60FE736270B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0C2AB55-6268-404A-B887-D60FE736270B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0C2AB55-6268-404A-B887-D60FE736270B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C5FAB30-9202-4385-BBEE-10F4093A37B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C5FAB30-9202-4385-BBEE-10F4093A37B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C5FAB30-9202-4385-BBEE-10F4093A37B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C5FAB30-9202-4385-BBEE-10F4093A37B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwrooot" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CardGame\CardGame.csproj" />
+      <ProjectReference Include="..\Hokm\Hokm.csproj" />
+    </ItemGroup>
+
+</Project>

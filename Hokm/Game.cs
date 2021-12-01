@@ -24,7 +24,7 @@ namespace Hokm
     /// </summary>
     public class Game
     {
-        public PlayerPosition Caller { get; init; }
+        public PlayerPosition TrumpCaller { get; init; }
         
         private Suit _trumpSuit;
 
@@ -53,15 +53,15 @@ namespace Hokm
             MatchScore matchScore,
             Team team1, 
             Team team2, 
-            PlayerPosition caller,
+            PlayerPosition trumpCaller,
             Func<IEnumerable<Card>, IEnumerable<Card>> suffler = null)
         {
             _matchScore = matchScore;
             _suffler = suffler;
             Team1 = team1;
             Team2 = team2;
-            Caller = caller;
-            _currentTrickStarter = caller;
+            TrumpCaller = trumpCaller;
+            _currentTrickStarter = trumpCaller;
             GameNumber = gameNumber;
         }
 
@@ -72,6 +72,8 @@ namespace Hokm
         public GameScore Score { get; } = new GameScore();
         
         public int GameNumber { get; init; }
+        
+        public TrickInfo CurrentTrick { get; private set; }
         
         internal static List<PlayerPosition> BuildPlayingOrder(PlayerPosition startingPosition)
         {
@@ -99,7 +101,7 @@ namespace Hokm
 
             Score.RegisterWin(args.Outcome.Winner);
             if (Score.IsCompleted)
-                OnGameFinished(new GameFinishedEventArgs() {Score = Score});
+                OnGameFinished(new GameFinishedEventArgs() {Game = this});
         }
         
         protected void OnBanterUttered(BanterUtteredEventArgs args)
@@ -120,8 +122,8 @@ namespace Hokm
         
         public async Task<Suit> DealAsync()
         {
-            var playingOrder = BuildPlayingOrder(Caller);
-            var trumpCaller = GetPlayer(Caller);
+            var playingOrder = BuildPlayingOrder(TrumpCaller);
+            var trumpCaller = GetPlayer(TrumpCaller);
             var deck = new Deck(_suffler).Shuffle();
 
             foreach (var position in playingOrder)
@@ -130,7 +132,7 @@ namespace Hokm
                 var player = GetPlayer(position);
                 _shadows[position].ReceiveHand(cards);
                 await player.ReceiveHandAsync(cards);
-                if (position == Caller)
+                if (position == TrumpCaller)
                 {
                     _trumpSuit = await trumpCaller.CallTrumpSuitAsync();
                 }
@@ -155,6 +157,11 @@ namespace Hokm
             _currentTrickNumber++;
             var playingOrder = BuildPlayingOrder(_currentTrickStarter);
             var cardsPlayed = new List<Card>();
+            CurrentTrick = new TrickInfo()
+            {
+                TrickNumber = _currentTrickNumber,
+                Starter = _currentTrickStarter
+            };
             
             foreach (var position in playingOrder)
             {
@@ -170,6 +177,9 @@ namespace Hokm
                     // TODO: alternative to raising exception is to play for the player
                 }
                 cardsPlayed.Add(card);
+                CurrentTrick.CardsPlayed = cardsPlayed.ToArray();
+                CurrentTrick.CurrentWinningPosition = playingOrder[DecideWinnerCard(cardsPlayed, _trumpSuit)];
+                
                 OnCardPlayed(new CardPlayedEventArgs()
                 {
                     Cards = cardsPlayed.ToArray(), 
@@ -213,7 +223,6 @@ namespace Hokm
                 1 => TrumpUsage.UsedOnce,
                 _ => TrumpUsage.UsedMultiple
             };
-
         }
         
         public static int DecideWinnerCard(IEnumerable<Card> cards, Suit trumpSuit)
@@ -235,6 +244,17 @@ namespace Hokm
                 return 0;
             else
                 return value;
+        }
+
+        public GameInfo ToInfo()
+        {
+            return new GameInfo()
+            {
+                Score = Score,
+                GameNumber = GameNumber,
+                TrumpCaller = TrumpCaller,
+                CurrentTrick = CurrentTrick
+            };
         }
 
     }

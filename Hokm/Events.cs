@@ -15,12 +15,7 @@ namespace Hokm
         
         public string Banter { get; init; }
     }
-
-    public class GameFinishedEventArgs : EventArgs
-    {
-        public GameScore Score { get; init; }
-    }
-
+    
     public class CardPlayedEventArgs : EventArgs
     {
         public IEnumerable<Card> Cards { get; init; }
@@ -33,4 +28,15 @@ namespace Hokm
         
         public int GameNumber { get; set; }
     }
+
+    public class GameStartedEventArgs : EventArgs
+    {
+        public Game Game { get; init; }
+    }
+    
+    public class GameFinishedEventArgs : EventArgs
+    {
+        public Game Game { get; init; }
+    }
+    
 }

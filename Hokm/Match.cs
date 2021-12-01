@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Hokm
 {
@@ -17,6 +16,12 @@ namespace Hokm
         
         public int CurrentGameNumber { get; private set; }
 
+        public event EventHandler<GameStartedEventArgs> GameStarted; 
+
+        public event EventHandler<GameFinishedEventArgs> GameFinished;
+
+        private Game _currentGame = null;
+        
         public Match(Team team1, 
             Team team2,
             int bestOf = 13)
@@ -34,8 +39,11 @@ namespace Hokm
 
             CurrentGameNumber++;
             var g = new Game(CurrentGameNumber, Score, Team1, Team2, CurrentTrumpCaller);
+            _currentGame = g;
             g.BanterUttered += OnBanterUttered;
             g.TrickCompleted += OnTrickCompleted;
+            
+            OnGameStarted(new GameStartedEventArgs() {Game = g});
             
             await g.DealAsync();
 
@@ -59,6 +67,9 @@ namespace Hokm
             g.BanterUttered -= OnBanterUttered;
             g.TrickCompleted -= OnTrickCompleted;
 
+            OnGameFinished(new GameFinishedEventArgs() {Game = g});
+            _currentGame = null;
+            
             return g;
         }
 
@@ -70,6 +81,27 @@ namespace Hokm
         private void OnBanterUttered(object sender, BanterUtteredEventArgs e)
         {
             
+        }
+
+        protected void OnGameStarted(GameStartedEventArgs args)
+        {
+            GameStarted?.Invoke(this, args);
+        }
+
+        protected void OnGameFinished(GameFinishedEventArgs args)
+        {
+            GameFinished?.Invoke(this, args);
+        }
+
+        public MatchInfo ToInfo()
+        {
+            return new MatchInfo()
+            {
+                Score = Score,
+                Team1 = Team1.ToInfo(),
+                Team2 = Team2.ToInfo(),
+                CurrentGame = _currentGame?.ToInfo()
+            };
         }
     }
 }
