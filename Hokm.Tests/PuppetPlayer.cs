@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CardGame;
+using Microsoft.VisualBasic;
+using Xunit.Abstractions;
 
 namespace Hokm.Tests
 {
     public class PuppetPlayer : IPlayer
     {
+        private ITestOutputHelper _output;
+
+        public PuppetPlayer(ITestOutputHelper output = null)
+        {
+            _output = output;
+        }
+        
         public Guid Id { get; } = Guid.NewGuid();
         
         public string Name { get; init; }
@@ -25,7 +34,15 @@ namespace Hokm.Tests
         
         public Task ReceiveHandAsync(IEnumerable<Card> cards)
         {
+
+            var delimiter = ",";
+            
             Cards.AddRange(cards);
+            _output?.WriteLine($"{MyPosition}: {string.Join(delimiter, Cards.Select(x => x.ToString()))}");
+
+            if (Cards.Count != 5 && Cards.Count != 9 && Cards.Count != 13)
+                throw new InvalidOperationException($"The puppet has {Cards.Count}!");
+
             return Task.CompletedTask;
         }
 
@@ -69,14 +86,16 @@ namespace Hokm.Tests
             return Task.FromResult<string>("Wat??");
         }
 
-        public Task NewGame(MatchScore currentMatchScore, PlayerPosition caller)
+        public Task NewGameAsync(MatchScore currentMatchScore, PlayerPosition caller)
         {
+            Cards.Clear();
             CurrentCaller = caller;
             return Task.CompletedTask;
         }
 
         public Task<string> GameFinished(GameOutcome outcome, GameScore currentScore)
         {
+            
             return Task.FromResult<string>("No luck!");
         }
 

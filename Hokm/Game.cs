@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using CardGame;
 
@@ -36,7 +37,7 @@ namespace Hokm
                 PlayerPositions.All.ToDictionary(x => x, y => new PlayerShadow());
 
         private readonly MatchScore _matchScore;
-        private Func<IEnumerable<Card>, IEnumerable<Card>> _suffler;
+        private Func<IEnumerable<Card>, IEnumerable<Card>> _shuffler;
 
         public event EventHandler<TrickFinishedEventArgs> TrickFinished;
 
@@ -57,10 +58,10 @@ namespace Hokm
             Team team1, 
             Team team2, 
             PlayerPosition trumpCaller,
-            Func<IEnumerable<Card>, IEnumerable<Card>> suffler = null)
+            Func<IEnumerable<Card>, IEnumerable<Card>> shuffler = null)
         {
             _matchScore = matchScore;
-            _suffler = suffler;
+            _shuffler = shuffler;
             Team1 = team1;
             Team2 = team2;
             TrumpCaller = trumpCaller;
@@ -133,14 +134,17 @@ namespace Hokm
         }
 
         
-        public async Task<Suit> DealAsync()
+        public async Task<Suit?> StarteAndDealAsync(CancellationToken cancellationToken)
         {
             var playingOrder = BuildPlayingOrder(TrumpCaller);
             var trumpCaller = GetPlayer(TrumpCaller);
-            var deck = new Deck(_suffler).Shuffle();
+            var deck = new Deck(_shuffler).Shuffle();
 
             foreach (var position in playingOrder)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
+                
                 var cards = deck.Deal(5).ToArray();
                 var player = GetPlayer(position);
                 _shadows[position].ReceiveHand(cards);
@@ -150,10 +154,12 @@ namespace Hokm
                     _trumpSuit = await trumpCaller.CallTrumpSuitAsync();
                 }
             }
-
             
             for (int i = 0; i < 2; i++)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
+
                 foreach (var position in playingOrder)
                 {
                     var cards = deck.Deal(4).ToArray();
@@ -172,7 +178,7 @@ namespace Hokm
             return _trumpSuit;
         }
 
-        public async Task<TrickOutcome> PlayTrickAsync(TimeSpan? inBetweenDelay = null)
+        public async Task<TrickOutcome> PlayTrickAsync(CancellationToken cancellationToken, TimeSpan? inBetweenDelay = null)
         {
             _currentTrickNumber++;
             OnTrickStarted(EventArgs.Empty);
@@ -187,15 +193,16 @@ namespace Hokm
             
             foreach (var position in playingOrder)
             {
-                var p = GetPlayer(position);
-                if (inBetweenDelay.HasValue)
-                    await Task.Delay(inBetweenDelay.Value);
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
                 
+                var p = GetPlayer(position);
+
                 var card = await p.PlayAsync(_currentTrickNumber, cardsPlayed, _trumpSuit);
                 var result = _shadows[position].ValidateAndPlay(card, cardsPlayed.Count == 0 ? card.Suit : cardsPlayed[0].Suit);
                 if (!result.IsValid)
                 {
-                    throw new InvalidPlayException(result.Error);
+                    throw new InvalidPlayException($"{position}: {result.Error}");
                     // TODO: alternative to raising exception is to play for the player
                 }
                 cardsPlayed.Add(card);
@@ -208,8 +215,12 @@ namespace Hokm
                     GameNumber = GameNumber, 
                     StarterPlayer = playingOrder[0], 
                     TrickNumber = _currentTrickNumber,
-                    TrumpSuit = _trumpSuit
+                    TrumpSuit = _trumpSuit,
+                    PlayerPlayingTheCard = position
                 });
+                
+                if (inBetweenDelay.HasValue)
+                    await Task.Delay(inBetweenDelay.Value, cancellationToken);
             }
 
             int index = DecideWinnerCard(cardsPlayed, _trumpSuit);

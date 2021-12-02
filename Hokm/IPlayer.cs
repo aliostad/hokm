@@ -18,7 +18,7 @@ namespace Hokm
         
         Task<string> BanterAsync();
 
-        Task NewGame(MatchScore currentMatchScore, PlayerPosition caller);
+        Task NewGameAsync(MatchScore currentMatchScore, PlayerPosition caller);
 
         Task<string> GameFinished(GameOutcome outcome, GameScore currentScore);
 
@@ -29,7 +29,7 @@ namespace Hokm
 
     public static class PlayerExtensions
     {
-        public static PlayerInfo ToInfo(this IPlayer player)
+        public static IPlayerInfo ToInfo(this IPlayer player)
         {
             return new PlayerInfo() { Id = player.Id, Name = player.Name };
         }

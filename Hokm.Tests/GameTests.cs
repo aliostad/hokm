@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CardGame;
 using Moq;
@@ -50,8 +51,8 @@ namespace Hokm.Tests
                     Player2 = players[PlayerPosition.Team2Player2]
                 }, PlayerPosition.Team1Player1);
 
-            await game.DealAsync();
-            var outcome = await game.PlayTrickAsync();
+            await game.StarteAndDealAsync(new CancellationToken());
+            var outcome = await game.PlayTrickAsync(new CancellationToken());
             _output.WriteLine(string.Join("-", outcome.CardsPlayed.Select(x => x.ToString())));
             _output.WriteLine(outcome.Winner.ToString());
             _output.WriteLine(outcome.TrumpUsage.ToString());

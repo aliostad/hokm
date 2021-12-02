@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,49 +10,78 @@ using Microsoft.Extensions.Hosting;
 
 namespace Hokm.GameServer
 {
-    public class MatchReportHubService : IHostLifetime, IMatchReportHub
+    // MUST BE THREAD-SAFE
+    public class MatchReportHubService : IHostedService, IMatchReportHub
     {
-        private readonly IHubContext<MatchReporterHub> _reportContext;
-
         private bool _working = false;
 
-        private List<IMachReportSink> _sinks = new List<IMachReportSink>();
+        // concurrent bag does not work hence using dictionary and object here is dummy
+        private ConcurrentDictionary<IMachReportSink, object> _sinks = new ConcurrentDictionary<IMachReportSink, object>();
+        private ConcurrentDictionary<Match, object> _activeMatches = new ConcurrentDictionary<Match, object>();
 
-        public MatchReportHubService(IHubContext<MatchReporterHub> reportContext)
+        public MatchReportHubService(IEnumerable<IMachReportSink> sinks)
         {
-            _reportContext = reportContext;
+            foreach (var sink in sinks)
+            {
+                _sinks.TryAdd(sink, null);
+            }
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _working = false;
-            return Task.CompletedTask;
-        }
-
-        public Task WaitForStartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             _working = true;
             return Task.CompletedTask;
         }
 
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            _working = false;
+            _activeMatches.ToList().ForEach(x => StopReportingMatch(x.Key));
+            
+            return Task.CompletedTask;
+        }
+
         public void ReportMatch(Match match)
         {
-            throw new System.NotImplementedException();
+            match.MatchEvent += MatchOnMatchEvent;
+        }
+
+        // NOTE: Async VOID !!! this is said to be dangerous but OK only on event handlers - which is this case
+        private async void MatchOnMatchEvent(object sender, MatchEventArgs e)
+        {
+            if (!_working)
+                return;
+            
+            foreach (var sink in _sinks.Keys)
+            {
+                try
+                {
+                    // in sequence rather than in parallel - for now
+                    await sink. ReportAsync(e.Info);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                }
+            }
         }
 
         public void StopReportingMatch(Match match)
         {
-            throw new System.NotImplementedException();
+            match.MatchEvent -= MatchOnMatchEvent;
+            object v = null;
+            _activeMatches.TryRemove(match, out v);
         }
 
         public void AddSubscriber(IMachReportSink sink)
         {
-            _sinks.Add(sink);
+            _sinks.TryAdd(sink, null);
         }
 
         public void RemoveSubscriber(IMachReportSink sink)
         {
-            _sinks.Remove(sink);
+            object v = null;
+            _sinks.TryRemove(sink, out v);
         }
     }
 }

@@ -27,6 +27,9 @@ namespace Hokm
         public int TrickNumber { get; init; }
         
         public int GameNumber { get; set; }
+        
+        
+        public PlayerPosition PlayerPlayingTheCard { get; set; }
     }
 
     public class GameStartedEventArgs : EventArgs
@@ -51,5 +54,7 @@ namespace Hokm
         public MatchInfo Info { get; init; }
         
         public EventType EventType { get; init; }
+        
+        public EventArgs OriginalEventArgs { get; init; }
     }
 }

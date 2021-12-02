@@ -28,7 +28,7 @@ namespace Hokm
         public int BestOf { get; init; }
         
         
-        public bool IsCompleted =>  Team1Points >= _limit && Team2Points >= _limit;
+        public bool IsCompleted =>  Team1Points >= _limit || Team2Points >= _limit;
         
         
         public void RegisterGameWin(GameScore score, PlayerPosition caller)

@@ -18,6 +18,9 @@ namespace Hokm
                     throw new InvalidOperationException($"Card {card} already exists.");
                 _handCards.Add(card);
             }
+
+            if (_handCards.Count != 5 && _handCards.Count != 9 && _handCards.Count != 13)
+                throw new InvalidOperationException($"The shadow has {_handCards.Count}!");
         }
 
         public ValidationResult ValidateAndPlay(Card card, Suit playedSuit)
