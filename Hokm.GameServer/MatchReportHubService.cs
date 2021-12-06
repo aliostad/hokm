@@ -13,12 +13,11 @@ namespace Hokm.GameServer
     // MUST BE THREAD-SAFE
     public class MatchReportHubService : IHostedService, IMatchReportHub
     {
-        private bool _working = false;
-
         // concurrent bag does not work hence using dictionary and object here is dummy
         private ConcurrentDictionary<IMachReportSink, object> _sinks = new ConcurrentDictionary<IMachReportSink, object>();
         private ConcurrentDictionary<Match, object> _activeMatches = new ConcurrentDictionary<Match, object>();
 
+        public bool IsRunning { get; private set; } = false;
         public MatchReportHubService(IEnumerable<IMachReportSink> sinks)
         {
             foreach (var sink in sinks)
@@ -29,13 +28,13 @@ namespace Hokm.GameServer
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _working = true;
+            IsRunning = true;
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _working = false;
+            IsRunning = false;
             _activeMatches.ToList().ForEach(x => StopReportingMatch(x.Key));
             
             return Task.CompletedTask;
@@ -49,7 +48,7 @@ namespace Hokm.GameServer
         // NOTE: Async VOID !!! this is said to be dangerous but OK only on event handlers - which is this case
         private async void MatchOnMatchEvent(object sender, MatchEventArgs e)
         {
-            if (!_working)
+            if (!IsRunning)
                 return;
             
             foreach (var sink in _sinks.Keys)
@@ -57,7 +56,7 @@ namespace Hokm.GameServer
                 try
                 {
                     // in sequence rather than in parallel - for now
-                    await sink. ReportAsync(e.Info);
+                    await sink.ReportAsync(e.Info);
                 }
                 catch (Exception exception)
                 {

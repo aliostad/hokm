@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -15,7 +16,7 @@ namespace Hokm.Tests
         }
         
         [Fact]
-        public async Task Runs_fine()
+        public async Task Normalla_Runs_fine()
         {
             var match = MatchTests.HaveYouGotAMatch();
             var c = new CancellationToken();
@@ -25,5 +26,30 @@ namespace Hokm.Tests
                 _output.WriteLine($"Team1: {match.Score.Team1Points}, Team2: {match.Score.Team2Points} ({game.TrumpCaller})");
             }
         }
+
+        [Fact]
+        public async Task Using_TaskRunner()
+        {
+            var m = MatchTests.HaveYouGotAMatch();
+            var mr = new MatchRunner(m, TimeSpan.FromMilliseconds(5));
+            m.MatchEvent += (sender, args) =>
+            {
+                if (args.EventType == EventType.GameFinished)
+                {
+                    _output.WriteLine($"Team1: {m.Score.Team1Points}, Team2: {m.Score.Team2Points}");
+                }
+            };
+
+            mr.Start();
+            
+            while (!mr.IsCompleted)
+            {
+                Thread.Sleep(50);
+            }
+            
+            _output.WriteLine("finished!");
+        }
+        
+        
     }
 }

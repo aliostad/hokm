@@ -49,9 +49,6 @@ namespace Hokm
         
         public void Stop()
         {
-            if (!IsRunning.HasValue || IsRunning.Value)
-                throw new InvalidOperationException("Not in a state that can be stopped.");
-
             IsRunning = null;
             _cancellation.Cancel();
         }
